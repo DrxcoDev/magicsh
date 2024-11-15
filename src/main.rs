@@ -1,11 +1,15 @@
 mod commands;
+mod history;
 
 use std::env;
 use std::io::{self, Write};
 use std::process::{Command, exit};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use history::CommandHistory;
 
 fn main() {
+    let mut command_history = CommandHistory::new();
+
     loop {
         // Obtener el directorio de trabajo actual
         let current_dir = env::current_dir().unwrap();
@@ -37,15 +41,22 @@ fn main() {
             continue;
         }
 
-        // Manejar el comando `cd`
-        if command_input.starts_with("cd ") {
-            commands::change_directory(&command_input[3..]);
+        // Añadir el comando al historial
+        command_history.add_command(command_input);
+
+        // Manejar comandos personalizados
+        if command_input == "exit" {
+            break;
+        }
+
+        if command_input == "history" {
+            command_history.show_history();
             continue;
         }
 
-        // Si el comando es "exit", terminar el programa
-        if command_input == "exit" {
-            break;
+        if command_input.starts_with("cd ") {
+            commands::change_directory(&command_input[3..]);
+            continue;
         }
 
         // Intentar ejecutar el comando

@@ -1,7 +1,7 @@
 use std::env;
 
 pub fn change_directory(command: &str) {
-    let dir = command.trim();
+    let dir: &str = command.trim();
     if dir.is_empty() {
         eprintln!("Error: No se especificó un directorio.");
         return;
