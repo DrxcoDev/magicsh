@@ -1,7 +1,7 @@
 use std::env;
 use std::fs::{self, DirEntry};
 use std::io::{self, Write};
-use std::process::{Command, exit};
+use std::process::{exit, Command, Output};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use chrono::Local; // Importamos `chrono` para manejar la fecha y hora
 use std::path::Path;
@@ -96,6 +96,15 @@ fn show_hostname() {
 
 }
 
+fn arrows_library() {
+    let output = Command::new("bash")
+     .arg("../lib/arrows.sh")
+     .output()
+     .expect("Error");
+
+     println!("\n{}", String::from_utf8_lossy(&output.stdout));
+}
+
 fn main() {
     let mut command_history = CommandHistory::new();
 
@@ -174,6 +183,10 @@ fn main() {
             continue;
         }
 
+        if command_input == "arrows_library" {
+            arrows_library();
+            continue;
+        }
 
         // Intentar ejecutar el comando
         let mut parts = command_input.split_whitespace();
