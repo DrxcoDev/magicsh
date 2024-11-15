@@ -7,4 +7,5 @@ edition = "2021"
 regex = "1"
 termcolor = "1.1"
 rustyline = "9.0"
+chrono = "0.4"
 

@@ -4,6 +4,7 @@ use std::io::{self, Write};
 use std::process::{Command, exit};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::path::Path;
+use chrono::prelude::*;
 
 mod commands;
 mod history;
@@ -17,6 +18,7 @@ fn list_files_with_size() {
 
     // Crear un objeto de salida para escribir en la terminal
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
+
 
     // Recorrer las entradas del directorio
     for entry in entries {
@@ -60,6 +62,8 @@ fn main() {
 
         // Crear un objeto de salida para escribir en la terminal
         let mut stdout = StandardStream::stdout(ColorChoice::Always);
+
+        let now: fn() -> DateTime<Utc> = Utc::now();
 
         // Establecer el color verde para el prompt
         let mut green = ColorSpec::new();
@@ -107,6 +111,7 @@ fn main() {
             list_files_with_size();
             continue;
         }
+        
 
         // Intentar ejecutar el comando
         let mut parts = command_input.split_whitespace();
