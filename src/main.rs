@@ -6,9 +6,21 @@ use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use chrono::Local; // Importamos `chrono` para manejar la fecha y hora
 use std::path::Path;
 
+// mod custom {
+//     pub mod arrows_lib;
+// }
 mod commands;
 mod history;
 use history::CommandHistory;
+
+fn arrows_library() {
+    let output = Command::new("bash")
+     .arg("../lib/arrows.sh")
+     .output()
+     .expect("Error");
+
+    println!("\n{}", String::from_utf8_lossy(&output.stdout));
+}
 
 fn list_files_with_size() {
     // Obtener el directorio actual
@@ -96,14 +108,7 @@ fn show_hostname() {
 
 }
 
-fn arrows_library() {
-    let output = Command::new("bash")
-     .arg("../lib/arrows.sh")
-     .output()
-     .expect("Error");
 
-     println!("\n{}", String::from_utf8_lossy(&output.stdout));
-}
 
 fn main() {
     let mut command_history = CommandHistory::new();
