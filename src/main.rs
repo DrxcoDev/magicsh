@@ -3,8 +3,8 @@ use std::fs::{self, DirEntry};
 use std::io::{self, Write};
 use std::process::{Command, exit};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use chrono::Local; // Importamos `chrono` para manejar la fecha y hora
 use std::path::Path;
-use chrono::prelude::*;
 
 mod commands;
 mod history;
@@ -19,6 +19,9 @@ fn list_files_with_size() {
     // Crear un objeto de salida para escribir en la terminal
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
 
+    // Establecer el color rojo para la flecha
+    let mut arrow_color = ColorSpec::new();
+    arrow_color.set_fg(Some(Color::Red));
 
     // Recorrer las entradas del directorio
     for entry in entries {
@@ -40,9 +43,11 @@ fn list_files_with_size() {
                     color.set_fg(Some(Color::Red)); // Tamaños grandes en rojo
                 }
 
-                stdout.set_color(&color).unwrap();
-                
-                // Mostrar el archivo y su tamaño
+                stdout.set_color(&arrow_color).unwrap(); // Establecer color de la flecha
+                write!(stdout, "↪ ").unwrap(); // Imprimir la flecha
+                stdout.reset().unwrap();
+
+                stdout.set_color(&color).unwrap(); // Establecer el color para el archivo
                 write!(stdout, "{:<20} {:>10} bytes", file_name, file_size).unwrap();
                 stdout.reset().unwrap();
                 println!(); // Nueva línea después de cada archivo
@@ -50,6 +55,23 @@ fn list_files_with_size() {
             Err(_) => continue,
         }
     }
+}
+
+// Comando "now" que muestra la fecha y hora actual
+fn show_current_time() {
+    let now = Local::now(); // Obtiene la fecha y hora actual
+    let formatted_time = now.format("%Y-%m-%d %H:%M:%S").to_string(); // Formato: "2024-11-15 14:30:00"
+    
+    // Mostrar la flecha roja antes de la fecha y hora
+    let mut stdout = StandardStream::stdout(ColorChoice::Always);
+    let mut arrow_color = ColorSpec::new();
+    arrow_color.set_fg(Some(Color::Red));
+
+    stdout.set_color(&arrow_color).unwrap();
+    write!(stdout, "↪ ").unwrap();
+    stdout.reset().unwrap();
+
+    println!("{}", formatted_time); // Muestra la fecha y hora
 }
 
 fn main() {
@@ -63,17 +85,23 @@ fn main() {
         // Crear un objeto de salida para escribir en la terminal
         let mut stdout = StandardStream::stdout(ColorChoice::Always);
 
-        let now: fn() -> DateTime<Utc> = Utc::now();
-
-        // Establecer el color verde para el prompt
+        // Establecer el color verde para el directorio
         let mut green = ColorSpec::new();
         green.set_fg(Some(Color::Green)).set_bold(true);
         stdout.set_color(&green).unwrap();
 
-        // Imprimir el nombre de usuario y directorio actual como el prompt
-        write!(stdout, "{:?} $ ", dir_str).unwrap();
+        // Establecer el color rojo para la flecha del prompt
+        let mut arrow_color = ColorSpec::new();
+        arrow_color.set_fg(Some(Color::Red));
 
-        // Devolver el color al normal
+        // Imprimir la flecha roja antes del directorio y el prompt
+        stdout.set_color(&arrow_color).unwrap();
+        write!(stdout, "").unwrap();
+        stdout.reset().unwrap();
+
+        // Imprimir el directorio actual en color verde
+        stdout.set_color(&green).unwrap();
+        write!(stdout, "{:?} $ ", dir_str).unwrap();
         stdout.reset().unwrap();
 
         // Capturar el input del usuario
@@ -111,7 +139,12 @@ fn main() {
             list_files_with_size();
             continue;
         }
-        
+
+        // Comando "now" que muestra la fecha y hora
+        if command_input == "now" {
+            show_current_time();
+            continue;
+        }
 
         // Intentar ejecutar el comando
         let mut parts = command_input.split_whitespace();
@@ -122,9 +155,13 @@ fn main() {
         match output {
             Ok(output) => {
                 if !output.stdout.is_empty() {
+                    // Agregar la flecha a la salida estándar
+                    print!("↪ ");
                     println!("{}", String::from_utf8_lossy(&output.stdout));
                 }
                 if !output.stderr.is_empty() {
+                    // Agregar la flecha a la salida de error
+                    eprint!("→ ");
                     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
                 }
             }
