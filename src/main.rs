@@ -74,6 +74,28 @@ fn show_current_time() {
     println!("{}", formatted_time); // Muestra la fecha y hora
 }
 
+fn show_hostname() {
+    let hostname = env::var("COMPUTERNAME");
+
+    let mut stdout = StandardStream::stdout(ColorChoice::Always);
+    let mut arrow_color = ColorSpec::new();
+    arrow_color.set_fg(Some(Color::Red));
+    
+    stdout.set_color(&arrow_color).unwrap();
+    write!(stdout, "↪ ").unwrap();
+    stdout.reset().unwrap();
+
+    let mut text_color_hostname = ColorSpec::new();
+    text_color_hostname.set_fg(Some(Color::Cyan));
+
+    stdout.set_color(&text_color_hostname).unwrap();
+    write!(stdout, "Hostname: ").unwrap();
+    stdout.reset().unwrap();
+
+    println!("{}", hostname.unwrap_or("Unknown Hostname".to_string())); // Muestra el nombre del host
+
+}
+
 fn main() {
     let mut command_history = CommandHistory::new();
 
@@ -145,6 +167,13 @@ fn main() {
             show_current_time();
             continue;
         }
+
+        // Comando "hostname" que muestra el nombre del host
+        if command_input == "hostname" {
+            show_hostname();
+            continue;
+        }
+
 
         // Intentar ejecutar el comando
         let mut parts = command_input.split_whitespace();
